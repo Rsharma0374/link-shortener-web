@@ -1,7 +1,12 @@
 import axios from 'axios';
 import { AuthResponse, LoginCredentials, SignupCredentials, ShortenUrlRequest, ShortenedUrl, TwoFactorAuthResponse } from '../types';
+import { encryptAES, decryptAES } from "./CryptoUtils"
+
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10008/api';
+const PRODUCT_NAME = import.meta.env.VITE_PRODUCT_NAME || 'URL_SHORTENER';
+const EMAIL_OTP_SMS = 'EMAIL_OTP_SMS';
+
 
 const api = axios.create({
   baseURL: API_URL,
@@ -46,9 +51,77 @@ export const authService = {
     return response.data;
   },
 
-  signup: async (credentials: SignupCredentials): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/signup', credentials);
-    return response.data;
+  sendEmailVerificationOTP: async (email: string, emailType: string) => {
+    const mappedDetails = {
+      sEmailId: email,
+      sEmailType: emailType,
+      bOtpRequired: true,
+      sProductName: PRODUCT_NAME,
+    };
+
+    const encryptedData = encryptAES(JSON.stringify(mappedDetails));
+
+    const response = await fetch(`${API_URL}/communications/send-email-otp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'sKeyId': sessionStorage.getItem('KEY_ID') || '',
+      },
+      body: JSON.stringify({ encryptedPayload: encryptedData }),
+    });
+
+    const responseJson = await response.json();
+    const encryptedResponse = responseJson.sResponse;
+    const decryptedResponse = decryptAES(encryptedResponse);
+    return JSON.parse(decryptedResponse);
+  },
+
+  validateOTP: async (otp: string, otpId: string) => {
+    const mappedDetails = {
+      sOtp: otp,
+      sOtpId: otpId,
+    };
+
+    const encryptedData = encryptAES(JSON.stringify(mappedDetails));
+
+    const response = await fetch(`${API_URL}/communications/validate-email-otp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'sKeyId': sessionStorage.getItem('KEY_ID') || '',
+      },
+      body: JSON.stringify({ encryptedPayload: encryptedData }),
+    });
+
+    const responseJson = await response.json();
+    const encryptedResponse = responseJson.sResponse;
+    const decryptedResponse = decryptAES(encryptedResponse);
+    return JSON.parse(decryptedResponse);
+  },
+
+  signup: async (formData: SignupCredentials) => {
+    const mappedDetails = {
+      sUserName: formData.email,
+      sPassword: formData.password,
+      sFullName: formData.name,
+      sProductName: PRODUCT_NAME,
+    };
+
+    const encryptedData = encryptAES(JSON.stringify(mappedDetails));
+
+    const response = await fetch(`${API_URL}/auth/create-user`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'sKeyId': sessionStorage.getItem('KEY_ID') || '',
+      },
+      body: JSON.stringify({ encryptedPayload: encryptedData }),
+    });
+
+    const responseJson = await response.json();
+    const encryptedResponse = responseJson.sResponse;
+    const decryptedResponse = decryptAES(encryptedResponse);
+    return JSON.parse(decryptedResponse);
   },
 
   setup2FA: async (): Promise<TwoFactorAuthResponse> => {

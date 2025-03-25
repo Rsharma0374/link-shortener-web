@@ -1,0 +1,14 @@
+db.getCollection("emailConfiguration").insertOne({
+    "emailType": "EMAIL_OTP_SMS",
+    "productName": "URL_SHORTENER",
+    "emailSubject": "Your OTP Code for Secure Access.",
+    "emailBody": "Your verification code for Url Shortener is: %s. Please enter OTP to proceed.",
+    "otpRequired": true,
+    "otpMaxLimit": 3,
+    "receiver": "rsharma0374@gmail.com",
+    "active": true,
+    "insertDate": new ISODate()
+})
+
+====
+
