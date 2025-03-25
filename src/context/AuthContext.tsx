@@ -6,11 +6,12 @@ import { socketService } from '../services/socket';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<any>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   setup2FA: () => Promise<{ qrCode: string; secret: string }>;
   verify2FA: (code: string) => Promise<void>;
+  updateToken: (token: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,10 +32,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string) => {
-    const response: AuthResponse = await authService.login({ email, password });
-    localStorage.setItem('token', response.token);
-    setUser(response.user);
-    socketService.connect(response.token);
+    const response = await authService.login(email, password);
+    return response;
   };
 
   const signup = async (name: string, email: string, password: string) => {
@@ -61,6 +60,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     socketService.connect(response.token);
   };
 
+  const updateToken = (token: string) => {
+    localStorage.setItem('token', token);
+    socketService.connect(token);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -71,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         setup2FA,
         verify2FA,
+        updateToken,
       }}
     >
       {children}

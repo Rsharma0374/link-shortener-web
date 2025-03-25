@@ -36,4 +36,32 @@ export interface TwoFactorAuthResponse {
 export interface ShortenUrlRequest {
   longUrl: string;
   validateDate: string;
+}
+
+export interface LoginResponse {
+  oBody: {
+    payLoad: {
+      sStatus: string;
+      sResponse: string;
+      sOtpToken: string;
+      sUsername: string;
+    };
+  };
+  aError?: Array<{
+    sMessage: string;
+  }>;
+}
+
+export interface OTPResponse {
+  oBody: {
+    payLoad: {
+      sStatus: string;
+      sResponse: string;
+      sToken: string;
+      sEncryptedValue: string;
+    };
+  };
+  aError?: Array<{
+    sMessage: string;
+  }>;
 } 

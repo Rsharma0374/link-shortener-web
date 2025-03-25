@@ -12,3 +12,14 @@ db.getCollection("emailConfiguration").insertOne({
 
 ====
 
+db.getCollection("emailConfiguration").insertOne({
+    "emailType": "2FA_OTP",
+    "productName": "URL_SHORTENER",
+    "emailSubject": "Url Shortener - Two-Factor Authentication Code",
+    "emailBody": "Hi %s,\n\nYour two-factor authentication code for Url Shortener is: %s \n\nThis code is valid for 2 minutes. \n\nPlease do not share this code with anyone.",
+    "otpRequired": true,
+    "otpMaxLimit": 3,
+    "receiver": "",
+    "active": true,
+    "insertDate": new ISODate()
+})

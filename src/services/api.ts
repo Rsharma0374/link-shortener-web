@@ -5,7 +5,6 @@ import { encryptAES, decryptAES } from "./CryptoUtils"
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10008/api';
 const PRODUCT_NAME = import.meta.env.VITE_PRODUCT_NAME || 'URL_SHORTENER';
-const EMAIL_OTP_SMS = 'EMAIL_OTP_SMS';
 
 
 const api = axios.create({
@@ -46,9 +45,28 @@ export const getEncryptionKey = async () => {
 };
 
 export const authService = {
-  login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/login', credentials);
-    return response.data;
+  login: async (identifier: string, bCryptPassword: string) => {
+    const mappedDetails = {
+      sUserIdentifier: identifier,
+      sSHAPassword: bCryptPassword,
+      sProductName: PRODUCT_NAME,
+    };
+
+    const encryptedData = encryptAES(JSON.stringify(mappedDetails));
+
+    const response = await fetch(`${API_URL}/auth/user-login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'sKeyId': sessionStorage.getItem('KEY_ID') || '',
+      },
+      body: JSON.stringify({ encryptedPayload: encryptedData }),
+    });
+
+    const responseJson = await response.json();
+    const encryptedResponse = responseJson.sResponse;
+    const decryptedResponse = decryptAES(encryptedResponse);
+    return JSON.parse(decryptedResponse);
   },
 
   sendEmailVerificationOTP: async (email: string, emailType: string) => {
@@ -62,6 +80,31 @@ export const authService = {
     const encryptedData = encryptAES(JSON.stringify(mappedDetails));
 
     const response = await fetch(`${API_URL}/communications/send-email-otp`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'sKeyId': sessionStorage.getItem('KEY_ID') || '',
+      },
+      body: JSON.stringify({ encryptedPayload: encryptedData }),
+    });
+
+    const responseJson = await response.json();
+    const encryptedResponse = responseJson.sResponse;
+    const decryptedResponse = decryptAES(encryptedResponse);
+    return JSON.parse(decryptedResponse);
+  },
+
+  validate2FAOTP: async (otp: string, otpId: string, email: string) => {
+    const mappedDetails = {
+      sOtp: otp,
+      sOtpId: otpId,
+      sUserName: email,
+      sProductName: PRODUCT_NAME,
+    };
+
+    const encryptedData = encryptAES(JSON.stringify(mappedDetails));
+
+    const response = await fetch(`${API_URL}/auth/validate-tfa-otp`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
