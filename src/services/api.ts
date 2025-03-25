@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthResponse, LoginCredentials, SignupCredentials, ShortenUrlRequest, ShortenedUrl, TwoFactorAuthResponse } from '../types';
+import { AuthResponse, SignupCredentials, ShortenUrlRequest, ShortenedUrl, TwoFactorAuthResponse } from '../types';
 import { encryptAES, decryptAES } from "./CryptoUtils"
 
 
