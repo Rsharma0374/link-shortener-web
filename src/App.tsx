@@ -30,6 +30,18 @@ const AppContent: React.FC = () => {
     initialize();
   }, []);
 
+  useEffect(() => {
+    const handleUnload = () => {
+      // initializeAESKey();
+      sessionStorage.clear();
+    };
+
+    window.addEventListener('beforeunload', handleUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleUnload);
+    };
+  }, []);
+
   return (
     <MainLayout>
       <Routes>

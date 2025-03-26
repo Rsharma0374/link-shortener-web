@@ -3,7 +3,7 @@ import { AuthResponse, SignupCredentials, ShortenUrlRequest, ShortenedUrl, TwoFa
 import { encryptAES, decryptAES } from "./CryptoUtils"
 
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10008/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:10008';
 const PRODUCT_NAME = import.meta.env.VITE_PRODUCT_NAME || 'URL_SHORTENER';
 
 
@@ -191,5 +191,32 @@ export const urlService = {
 
   deleteUrl: async (id: string): Promise<void> => {
     await api.delete(`/urls/${id}`);
+  },
+};
+
+export const dashboardService = {
+  getDashboardDetails: async (username: string, identifier: string, token: string) => {
+
+    const mappedDetails = {
+      sIdentifier: identifier,
+      sProductName: PRODUCT_NAME,
+    };
+    const encryptedData = encryptAES(JSON.stringify(mappedDetails));
+
+    const response = await fetch(`${API_URL}/url-service/get-dashboard-details`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'sKeyId': sessionStorage.getItem('KEY_ID') || '',
+        'Authorization': `Bearer ${token}`,
+        'userName': username,
+      },
+      body: JSON.stringify({ encryptedPayload: encryptedData }),
+    });
+
+    const responseJson = await response.json();
+    const encryptedResponse = responseJson.sResponse;
+    const decryptedResponse = decryptAES(encryptedResponse);
+    return JSON.parse(decryptedResponse);
   },
 }; 

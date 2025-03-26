@@ -126,11 +126,16 @@ export const Login: React.FC = () => {
         setSuccessMessage(res.oBody.payLoad.sResponse);
         setTimeout(() => setSuccessMessage(''), 5000);
         const token = res.oBody.payLoad.sToken;
-        handleUpdateToken(token);
+        const userData = {
+          name: username,
+          email: formik.values.email,
+          token: token
+        };
+        updateToken(token);
         sessionStorage.setItem('token', token);
         sessionStorage.setItem('identifier', formik.values.email);
         sessionStorage.setItem('username', username);
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true });
       } else if (res?.aError && res.aError.length > 0) {
         const error = res.aError[0];
         if (error) {
@@ -152,10 +157,6 @@ export const Login: React.FC = () => {
       setLoading(false);
     }
   }
-
-  const handleUpdateToken = (token: string) => {
-    updateToken(token);
-  };
 
   const handleResendOtp = async () => {
     setLoading(true);

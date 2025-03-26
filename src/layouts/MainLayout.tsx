@@ -44,7 +44,18 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           )}
         </Toolbar>
       </AppBar>
-      <Container component="main" sx={{ mt: 4, mb: 4, flex: 1 }}>
+      <Container 
+        component="main" 
+        sx={{ 
+          mt: 4, 
+          mb: 4, 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center' 
+        }}
+      >
         {children}
       </Container>
       <Box component="footer" sx={{ py: 3, bgcolor: 'background.paper' }}>
@@ -56,4 +67,4 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </Box>
     </Box>
   );
-}; 
+};

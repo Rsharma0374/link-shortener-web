@@ -3,6 +3,7 @@ export interface User {
   email: string;
   name: string;
   is2FAEnabled: boolean;
+  token: string;
 }
 
 export interface ShortenedUrl {
