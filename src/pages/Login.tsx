@@ -126,11 +126,6 @@ export const Login: React.FC = () => {
         setSuccessMessage(res.oBody.payLoad.sResponse);
         setTimeout(() => setSuccessMessage(''), 5000);
         const token = res.oBody.payLoad.sToken;
-        const userData = {
-          name: username,
-          email: formik.values.email,
-          token: token
-        };
         updateToken(token);
         sessionStorage.setItem('token', token);
         sessionStorage.setItem('identifier', formik.values.email);
