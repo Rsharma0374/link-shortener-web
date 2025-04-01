@@ -360,8 +360,8 @@ export const forgotPasswordService = {
     const username = sessionStorage.getItem('username');
 
     const mappedDetails = {
-      sLongUrl: data.sLongUrl,
-      iExpiryDay: data.iExpiryDay,
+      sLongUrl: data.longUrl,
+      iExpiryDay: data.expiryDay,
       sUser: username,
     };
     const encryptedData = encryptAES(JSON.stringify(mappedDetails));
